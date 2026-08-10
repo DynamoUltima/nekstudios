@@ -1,0 +1,17 @@
+node_modules
+.next
+out
+build
+
+# Local env — .env.example is the committed template
+.env*.local
+.env
+
+# Firebase service account keys never belong in the repo
+*-service-account.json
+serviceAccountKey.json
+
+.DS_Store
+*.tsbuildinfo
+next-env.d.ts
+.vercel

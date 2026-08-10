@@ -1,0 +1,55 @@
+rules_version = '2';
+
+/**
+ * NEK Studios — Firestore rules.
+ *
+ * The app reads and writes Firestore through the Admin SDK in Server
+ * Components and Server Actions, and the Admin SDK bypasses these rules
+ * entirely. So this file governs one thing: what a browser holding the public
+ * web API key may do directly.
+ *
+ * The answer is "read the catalogue, nothing else". Orders, subscribers and
+ * the admin allowlist are never client-readable, even for a signed-in admin —
+ * there is no client code that needs them, so there is no reason to open them.
+ */
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAdmin() {
+      return request.auth != null && request.auth.token.admin == true;
+    }
+
+    // Catalogue: public. This is what the storefront shows anyway.
+    match /products/{slug} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /drops/{dropId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Trade data: server only.
+    match /orders/{orderId} {
+      allow read, write: if false;
+    }
+
+    // Sign-ups arrive through a Server Action so the address can be validated
+    // and de-duplicated before it lands.
+    match /subscribers/{email} {
+      allow read, write: if false;
+    }
+
+    // The admin allowlist is written by the create-admin script, never by a
+    // client. Reading it would leak who has access.
+    match /admins/{uid} {
+      allow read, write: if false;
+    }
+
+    // Anything not named above stays shut.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
