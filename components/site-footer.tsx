@@ -49,7 +49,7 @@ export function SiteFooter() {
       <div className="mx-auto grid max-w-[110rem] gap-14 px-5 py-16 md:grid-cols-[1.4fr_repeat(3,1fr)] md:px-10 md:py-20">
         <div>
           <p className="label text-sm tracking-[0.28em]">
-            NEK <span className="text-red">Studios</span>
+            Eik<span className="text-red">one</span>
           </p>
           <p className="mt-6 max-w-[34ch] text-sm leading-relaxed text-bone/60">
             Heavyweight cotton, cut for the walk between places. Printed in
@@ -87,12 +87,12 @@ export function SiteFooter() {
           style={{ fontSize: "clamp(4rem, 19vw, 20rem)" }}
           aria-hidden="true"
         >
-          NEK Studios
+          Eikone
         </p>
       </div>
 
       <div className="mx-auto flex max-w-[110rem] flex-col gap-3 border-t border-white/12 px-5 py-6 text-[0.625rem] tracking-[0.18em] text-bone/40 uppercase md:flex-row md:items-center md:justify-between md:px-10">
-        <p className="font-mono">© 2026 NEK Studios. All rights reserved.</p>
+        <p className="font-mono">© 2026 Eikone. All rights reserved.</p>
         <p className="font-mono">
           Design demo · Built with Next.js
         </p>

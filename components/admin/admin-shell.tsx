@@ -42,9 +42,9 @@ export async function AdminShell({
           <Link
             href="/admin"
             className="label block px-5 text-sm tracking-[0.28em]"
-            aria-label="NEK Studios admin home"
+            aria-label="Eikone admin home"
           >
-            NEK <span className="text-red">Studios</span>
+            Eik<span className="text-red">one</span>
           </Link>
           <p className="label mt-2 px-5 text-[0.5625rem] text-bone/35">
             Studio desk
@@ -81,7 +81,7 @@ export async function AdminShell({
       <div className="sticky top-0 z-40 bg-ink text-bone lg:hidden">
         <div className="flex items-center justify-between px-5 pt-5">
           <Link href="/admin" className="label text-sm tracking-[0.28em]">
-            NEK <span className="text-red">Studios</span>
+            Eik<span className="text-red">one</span>
           </Link>
           <div className="flex items-center gap-4">
             <Link href="/" className="label text-bone/45">

@@ -1,7 +1,7 @@
 /**
  * Grant someone access to the studio desk.
  *
- *   npm run create-admin -- studio@nekstudios.com 'a-long-password'
+ *   npm run create-admin -- studio@eikone.com 'a-long-password'
  *
  * Creates the Firebase user if they don't exist, sets the `admin: true` custom
  * claim the app checks, and records them in the `admins` collection so there's

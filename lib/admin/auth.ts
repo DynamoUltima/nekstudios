@@ -23,7 +23,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { adminAuth } from "@/lib/firebase/server";
 
-export const SESSION_COOKIE = "nek_admin_session";
+export const SESSION_COOKIE = "eikone_admin_session";
 
 /** Two weeks — Firebase's ceiling for a session cookie. */
 export const SESSION_MAX_AGE_MS = 14 * 24 * 60 * 60 * 1000;

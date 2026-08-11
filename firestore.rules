@@ -1,7 +1,7 @@
 rules_version = '2';
 
 /**
- * NEK Studios — Firestore rules.
+ * Eikone — Firestore rules.
  *
  * The app reads and writes Firestore through the Admin SDK in Server
  * Components and Server Actions, and the Admin SDK bypasses these rules

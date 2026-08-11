@@ -29,7 +29,7 @@ type Action =
   | { type: "hydrate"; lines: CartLine[] }
   | { type: "clear" };
 
-const STORAGE_KEY = "nek-studios.cart.v1";
+const STORAGE_KEY = "eikone.cart.v1";
 
 function reducer(state: CartLine[], action: Action): CartLine[] {
   switch (action.type) {

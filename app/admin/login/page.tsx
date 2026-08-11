@@ -27,7 +27,7 @@ export default async function AdminLoginPage({
     <div className="flex min-h-svh flex-col justify-center bg-ink px-5 py-16 text-bone">
       <div className="mx-auto w-full max-w-sm">
         <Link href="/" className="label text-sm tracking-[0.28em]">
-          NEK <span className="text-red">Studios</span>
+          Eik<span className="text-red">one</span>
         </Link>
 
         <h1

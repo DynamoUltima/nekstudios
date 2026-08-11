@@ -7,7 +7,7 @@ import { Eyebrow } from "@/components/button";
 export const metadata: Metadata = {
   title: "The Fabric",
   description:
-    "Spec sheet, sizing, shipping and returns for NEK Studios heavyweight cotton.",
+    "Spec sheet, sizing, shipping and returns for Eikone heavyweight cotton.",
 };
 
 const SIZING = [

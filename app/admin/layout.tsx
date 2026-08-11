@@ -3,9 +3,9 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: {
     default: "Studio desk",
-    template: "%s · NEK Admin",
+    template: "%s · Eikone Admin",
   },
-  description: "Order, inventory and drop management for NEK Studios.",
+  description: "Order, inventory and drop management for Eikone.",
   // Nothing under /admin belongs in an index.
   robots: { index: false, follow: false },
 };

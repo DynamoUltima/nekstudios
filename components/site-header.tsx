@@ -41,9 +41,9 @@ export function SiteHeader() {
           <Link
             href="/"
             className="label text-sm tracking-[0.28em] whitespace-nowrap"
-            aria-label="NEK Studios home"
+            aria-label="Eikone home"
           >
-            NEK <span className="text-red">Studios</span>
+            Eik<span className="text-red">one</span>
           </Link>
 
           <nav className="hidden items-center gap-9 lg:flex">

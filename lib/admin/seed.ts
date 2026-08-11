@@ -122,7 +122,7 @@ export function seedOrders(): Order[] {
       placedAt.setHours(between(7, 23), between(0, 59), 0, 0);
 
       orders.push({
-        id: `NEK-${counter++}`,
+        id: `EIK-${counter++}`,
         placedAt: placedAt.toISOString(),
         status: statusForAge(day),
         channel: random() > 0.82 ? "EARLY ACCESS" : random() > 0.96 ? "POPUP" : "WEB",

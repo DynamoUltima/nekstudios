@@ -18,13 +18,13 @@ const mono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "NEK Studios — Own The Streets",
-    template: "%s · NEK Studios",
+    default: "Eikone — Own The Streets",
+    template: "%s · Eikone",
   },
   description:
     "Heavyweight waffle-structure cotton tees, cut for movement. Collection '26 — printed in small runs, sold until the sizes run out.",
   openGraph: {
-    title: "NEK Studios — Own The Streets",
+    title: "Eikone — Own The Streets",
     description:
       "Heavyweight waffle-structure cotton tees, cut for movement. Collection '26.",
     type: "website",
