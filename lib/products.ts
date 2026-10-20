@@ -4,7 +4,8 @@ export type Product = {
   subtitle: string;
   price: number;
   compareAt?: number;
-  collection: "MOVEMENT" | "FABRIC" | "THE DROP" | "ARCHIVE";
+  /** Free text: collections are renamed from the admin, so this is not a fixed union. */
+  collection: string;
   colorway: string;
   image: string;
   alt: string;

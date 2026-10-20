@@ -8,14 +8,41 @@ import {
 } from "@/lib/admin/form-state";
 import {
   BADGES,
-  COLLECTIONS,
   SIZE_LADDER,
+  type FabricOption,
   slugify,
 } from "@/lib/admin/types";
 import { AdminButton, Field, Panel, inputClass } from "./ui";
 import { ImageField } from "./image-field";
+import { submitWithoutReset } from "./submit";
 
-export function NewProductForm() {
+/** Starting run per size. Rows are prefilled so a normal piece needs no typing. */
+const DEFAULT_RUN: Record<(typeof SIZE_LADDER)[number], number> = {
+  XS: 10,
+  S: 25,
+  M: 40,
+  L: 40,
+  XL: 25,
+  XXL: 10,
+};
+
+export function NewProductForm({
+  collections,
+  fabrics,
+}: {
+  collections: string[];
+  fabrics: FabricOption[];
+}) {
+  const [sizes, setSizes] = useState<string[]>([...SIZE_LADDER]);
+  // Mirrors the fields the alt text is built from, so it can follow them.
+  const [draft, setDraft] = useState({ name: "", subtitle: "", colorway: "" });
+  const [alt, setAlt] = useState("");
+  const [altTouched, setAltTouched] = useState(false);
+  const suggestedAlt = draft.name
+    ? [`${draft.name} ${draft.subtitle}`.trim(), draft.colorway, "front view"]
+        .filter(Boolean)
+        .join(", ")
+    : "";
   const [state, formAction, pending] = useActionState<ProductFormState, FormData>(
     createProduct,
     emptyProductFormState,
@@ -23,7 +50,17 @@ export function NewProductForm() {
   );
 
   return (
-    <form action={formAction} className="grid gap-6 xl:grid-cols-[1.3fr_1fr]">
+    <form
+      action={formAction}
+      onSubmit={(event) => submitWithoutReset(event, formAction)}
+      onChange={(event) => {
+        const { name, value } = event.target as HTMLInputElement;
+        if (name === "name" || name === "subtitle" || name === "colorway") {
+          setDraft((current) => ({ ...current, [name]: value }));
+        }
+      }}
+      className="grid gap-6 xl:grid-cols-[1.3fr_1fr]"
+    >
       <div className="space-y-6">
         <Panel title="Identity">
           <Naming
@@ -73,10 +110,10 @@ export function NewProductForm() {
               <select
                 id="collection"
                 name="collection"
-                defaultValue="THE DROP"
+                defaultValue={collections[0]}
                 className={inputClass}
               >
-                {COLLECTIONS.map((collection) => (
+                {collections.map((collection) => (
                   <option key={collection} value={collection}>
                     {collection}
                   </option>
@@ -117,32 +154,11 @@ export function NewProductForm() {
         </Panel>
 
         <Panel title="Spec" meta="Fixed at the factory">
-          <div className="grid gap-6 sm:grid-cols-2">
-            <Field
-              label="Fabric"
-              htmlFor="fabric"
-              error={state.errors.fabric}
-              hint="Waffle-structure heavyweight cotton"
-            >
-              <input id="fabric" name="fabric" className={inputClass} />
-            </Field>
-
-            <Field
-              label="Weight (GSM)"
-              htmlFor="weightGsm"
-              error={state.errors.weightGsm}
-            >
-              <input
-                id="weightGsm"
-                name="weightGsm"
-                type="number"
-                min="1"
-                step="1"
-                defaultValue={260}
-                className={inputClass}
-              />
-            </Field>
-          </div>
+          <FabricFields
+            fabrics={fabrics}
+            fabricError={state.errors.fabric}
+            weightError={state.errors.weightGsm}
+          />
 
           <div className="mt-6 space-y-6">
             <Field
@@ -192,11 +208,20 @@ export function NewProductForm() {
               label="Alt text"
               htmlFor="alt"
               error={state.errors.alt}
-              hint="What the photo shows, for anyone who can't see it."
+              hint={
+                altTouched
+                  ? "What the photo shows, for anyone who can't see it."
+                  : "Filled from the name, subtitle and colourway — edit to describe the shot."
+              }
             >
               <input
                 id="alt"
                 name="alt"
+                value={altTouched ? alt : suggestedAlt}
+                onChange={(event) => {
+                  setAltTouched(true);
+                  setAlt(event.target.value);
+                }}
                 placeholder="Heavyweight white box tee worn straight on"
                 className={inputClass}
               />
@@ -214,19 +239,38 @@ export function NewProductForm() {
 
         <Panel title="The run" meta="Units cut per size">
           <ul className="space-y-3">
-            {SIZE_LADDER.map((size) => (
+            {SIZE_LADDER.filter((size) => sizes.includes(size)).map((size) => (
               <SizeRow
                 key={size}
                 size={size}
                 runError={state.errors[`run:${size}`]}
                 stockError={state.errors[`stock:${size}`]}
+                onRemove={() =>
+                  setSizes((current) => current.filter((s) => s !== size))
+                }
               />
             ))}
           </ul>
 
+          {sizes.length < SIZE_LADDER.length && (
+            <div className="mt-5 flex flex-wrap items-center gap-2">
+              <span className="label text-ash">Add size</span>
+              {SIZE_LADDER.filter((size) => !sizes.includes(size)).map((size) => (
+                <button
+                  key={size}
+                  type="button"
+                  onClick={() => setSizes((current) => [...current, size])}
+                  className="label border border-line px-3 py-2 hover:bg-ink hover:text-paper"
+                >
+                  + {size}
+                </button>
+              ))}
+            </div>
+          )}
+
           <p className="label mt-6 border-t border-line pt-5 text-ash">
-            A size left at a run of zero isn't cut for this piece. Stock follows
-            the run until you set it yourself.
+            Remove a size to leave it out of this piece. Stock follows the run
+            until you set it yourself.
           </p>
         </Panel>
 
@@ -323,12 +367,14 @@ function SizeRow({
   size,
   runError,
   stockError,
+  onRemove,
 }: {
-  size: string;
+  size: (typeof SIZE_LADDER)[number];
   runError?: string;
   stockError?: string;
+  onRemove: () => void;
 }) {
-  const [run, setRun] = useState("");
+  const [run, setRun] = useState(String(DEFAULT_RUN[size]));
   const [stock, setStock] = useState("");
   const [stockTouched, setStockTouched] = useState(false);
 
@@ -376,11 +422,91 @@ function SizeRow({
           className={`${inputClass} w-20`}
         />
         <span className="label shrink-0 text-ash">on hand</span>
+
+        <button
+          type="button"
+          onClick={onRemove}
+          aria-label={`Remove size ${size}`}
+          className="label ml-auto shrink-0 border border-line px-2.5 py-2 text-ash hover:border-red hover:text-red"
+        >
+          ✕
+        </button>
       </div>
 
       {error && (
         <p className="label mt-2 pl-13 text-[0.5625rem] text-red">{error}</p>
       )}
     </li>
+  );
+}
+
+const OTHER = "__other__";
+
+/**
+ * Fabric picks from what the catalogue already uses and fills in its usual
+ * weight; "Other…" opens a text box for a cloth nobody has cut yet. Either way
+ * the submitted field is `fabric`, so the action doesn't know the difference.
+ */
+function FabricFields({
+  fabrics,
+  fabricError,
+  weightError,
+}: {
+  fabrics: FabricOption[];
+  fabricError?: string;
+  weightError?: string;
+}) {
+  const [choice, setChoice] = useState(fabrics[0]?.fabric ?? OTHER);
+  const [weight, setWeight] = useState(String(fabrics[0]?.weightGsm ?? 260));
+  const isOther = choice === OTHER;
+
+  return (
+    <div className="grid gap-6 sm:grid-cols-2">
+      <Field label="Fabric" htmlFor="fabricChoice" error={fabricError}>
+        <select
+          id="fabricChoice"
+          value={choice}
+          onChange={(event) => {
+            const next = event.target.value;
+            setChoice(next);
+            const known = fabrics.find((f) => f.fabric === next);
+            if (known) setWeight(String(known.weightGsm));
+          }}
+          className={inputClass}
+        >
+          {fabrics.map((f) => (
+            <option key={f.fabric} value={f.fabric}>
+              {f.fabric}
+            </option>
+          ))}
+          <option value={OTHER}>Other…</option>
+        </select>
+
+        {isOther ? (
+          <input
+            id="fabric"
+            name="fabric"
+            aria-label="New fabric name"
+            placeholder="Waffle-structure heavyweight cotton"
+            className={`${inputClass} mt-3`}
+          />
+        ) : (
+          <input type="hidden" name="fabric" value={choice} />
+        )}
+      </Field>
+
+      <Field label="Weight (GSM)" htmlFor="weightGsm" error={weightError}>
+        <input
+          id="weightGsm"
+          name="weightGsm"
+          type="number"
+          min="1"
+          step="1"
+          value={weight}
+          onChange={(event) => setWeight(event.target.value)}
+          className={inputClass}
+        />
+      </Field>
+    </div>
   );
 }

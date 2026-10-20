@@ -6,13 +6,14 @@ import { assertAdmin } from "./auth";
 import type { ProductFormState } from "./form-state";
 import {
   BADGES,
-  COLLECTIONS,
   ORDER_STATUSES,
   RESERVED_SLUGS,
   SIZE_LADDER,
   SLUG_PATTERN,
   createProduct as writeProduct,
+  deleteProduct as removeProduct,
   patchProduct,
+  renameCollection as writeCollectionName,
   setOrderStatus,
   slugify,
   type OrderStatus,
@@ -25,7 +26,11 @@ import {
   uploadProductImage,
 } from "@/lib/firebase/storage";
 import { imageProblem } from "./image-limits";
-import { getEntry } from "@/lib/catalogue";
+import { getCatalogue, getEntry } from "@/lib/catalogue";
+import { collectionNames } from "./types";
+import { parseFabricContent } from "@/lib/fabric-types";
+import { FABRIC_DOC, SITE_COLLECTION } from "@/lib/fabric";
+import { adminDb } from "@/lib/firebase/server";
 import type { Product } from "@/lib/products";
 
 /* -------------------------------- orders ---------------------------------- */
@@ -53,7 +58,7 @@ const text = (formData: FormData, key: string) =>
 /** The fields both forms edit. Errors accumulate into the caller's bag. */
 type Listing = {
   price: number;
-  collection: Product["collection"];
+  collection: string;
   status: Product["status"] | null;
   colorway: string;
   description: string;
@@ -62,14 +67,15 @@ type Listing = {
 function readListing(
   formData: FormData,
   errors: Record<string, string>,
+  collections: string[],
 ): Listing {
   const price = Number(formData.get("price"));
   if (!Number.isFinite(price) || price <= 0) {
     errors.price = "Price must be a number above zero.";
   }
 
-  const collection = text(formData, "collection") as Product["collection"];
-  if (!COLLECTIONS.includes(collection)) {
+  const collection = text(formData, "collection");
+  if (!collections.includes(collection)) {
     errors.collection = "Pick a collection.";
   }
 
@@ -117,6 +123,43 @@ function readImage(
   return value;
 }
 
+/* ------------------------------ collections ------------------------------- */
+
+const currentCollections = async () =>
+  collectionNames((await getCatalogue()).map((e) => e.product));
+
+export async function renameCollection(
+  _prev: ProductFormState,
+  formData: FormData,
+): Promise<ProductFormState> {
+  await assertAdmin();
+
+  const from = text(formData, "from");
+  // Collections are written in capitals everywhere they're shown.
+  const to = text(formData, "to").toUpperCase();
+
+  if (!to) {
+    return { ok: false, message: "", errors: { to: "A collection needs a name." } };
+  }
+  if (to.length > 40) {
+    return { ok: false, message: "", errors: { to: "Keep it under 40 characters." } };
+  }
+  if (to === from) {
+    return { ok: false, message: "", errors: { to: "That's already its name." } };
+  }
+  if (!(await currentCollections()).includes(from)) {
+    return { ok: false, message: "That collection no longer exists.", errors: {} };
+  }
+
+  await writeCollectionName(from, to);
+
+  revalidatePath("/admin", "layout");
+  revalidatePath("/", "layout");
+
+  // The tab being viewed has just changed name.
+  redirect(`/admin/products?c=${encodeURIComponent(to.toLowerCase())}`);
+}
+
 /* -------------------------------- products -------------------------------- */
 
 export async function updateProduct(
@@ -128,7 +171,7 @@ export async function updateProduct(
   const slug = text(formData, "slug");
   const errors: Record<string, string> = {};
 
-  const listing = readListing(formData, errors);
+  const listing = readListing(formData, errors, await currentCollections());
 
   const front = readImage(formData, "image", errors);
   const back = readImage(formData, "imageAlt", errors);
@@ -198,7 +241,7 @@ export async function createProduct(
   await assertAdmin();
 
   const errors: Record<string, string> = {};
-  const listing = readListing(formData, errors);
+  const listing = readListing(formData, errors, await currentCollections());
 
   const name = text(formData, "name");
   if (!name) errors.name = "Every piece needs a name.";
@@ -335,6 +378,29 @@ export async function createProduct(
   redirect(`/admin/products/${slug}`);
 }
 
+export async function deleteProduct(
+  _prev: ProductFormState,
+  formData: FormData,
+): Promise<ProductFormState> {
+  await assertAdmin();
+
+  const slug = text(formData, "slug");
+
+  const product = await removeProduct(slug);
+
+  if (!product) {
+    return { ok: false, message: "That piece is already gone.", errors: {} };
+  }
+
+  await Promise.all([
+    deleteProductImage(product.image),
+    deleteProductImage(product.imageAlt),
+  ]);
+
+  revalidateProduct(slug);
+  redirect("/admin/products");
+}
+
 /** Everywhere a piece is read. The home page carries the featured grid. */
 function revalidateProduct(slug: string) {
   revalidatePath("/admin");
@@ -344,4 +410,33 @@ function revalidateProduct(slug: string) {
   revalidatePath("/");
   revalidatePath("/shop");
   revalidatePath(`/shop/${slug}`);
+}
+
+/* ------------------------------ fabric page ------------------------------- */
+
+export async function saveFabric(
+  _prev: ProductFormState,
+  formData: FormData,
+): Promise<ProductFormState> {
+  await assertAdmin();
+
+  let raw: unknown;
+  try {
+    raw = JSON.parse(text(formData, "payload"));
+  } catch {
+    return { ok: false, message: "Nothing saved — the form couldn't be read.", errors: {} };
+  }
+
+  const parsed = parseFabricContent(raw);
+  if (parsed.errors) {
+    return { ok: false, message: "Nothing saved — check the fields below.", errors: parsed.errors };
+  }
+
+  await adminDb.collection(SITE_COLLECTION).doc(FABRIC_DOC).set(parsed.content);
+
+  revalidatePath("/");
+  revalidatePath("/fabric");
+  revalidatePath("/admin/fabric");
+
+  return { ok: true, message: "Fabric page saved.", errors: {} };
 }

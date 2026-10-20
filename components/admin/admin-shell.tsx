@@ -26,6 +26,7 @@ export async function AdminShell({
         { label: "Products", href: "/admin/products" },
         { label: "Inventory", href: "/admin/inventory" },
         { label: "Drops", href: "/admin/drops" },
+        { label: "Fabric page", href: "/admin/fabric" },
       ],
     },
     {

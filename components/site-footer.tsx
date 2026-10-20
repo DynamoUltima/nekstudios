@@ -1,14 +1,14 @@
 import Link from "next/link";
+import { collectionLink } from "@/lib/collection-links";
 import { Marquee } from "./motion";
 import { RegisterMark } from "./texture";
 
-const COLUMNS = [
+const columns = (collections: string[]) => [
   {
     title: "Shop",
     links: [
-      { label: "The Drop", href: "/shop" },
-      { label: "Movement", href: "/shop?c=movement" },
-      { label: "Archive", href: "/shop?c=archive" },
+      { label: "All pieces", href: "/shop" },
+      ...collections.map(collectionLink),
       { label: "Lookbook", href: "/lookbook" },
     ],
   },
@@ -30,9 +30,9 @@ const COLUMNS = [
       { label: "Newsletter", href: "/#newsletter" },
     ],
   },
-];
+]
 
-export function SiteFooter() {
+export function SiteFooter({ collections }: { collections: string[] }) {
   return (
     <footer className="relative bg-ink text-bone">
       <div className="border-b border-white/12 py-5">
@@ -61,7 +61,7 @@ export function SiteFooter() {
           </div>
         </div>
 
-        {COLUMNS.map((col) => (
+        {columns(collections).map((col) => (
           <div key={col.title}>
             <h3 className="label text-bone/45">{col.title}</h3>
             <ul className="mt-6 space-y-3.5">

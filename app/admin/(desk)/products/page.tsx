@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { AdminPageHead } from "@/components/admin/admin-shell";
+import { RenameCollectionForm } from "@/components/admin/rename-collection-form";
 import {
   EmptyState,
   Meter,
@@ -14,12 +15,11 @@ import {
   Tr,
 } from "@/components/admin/ui";
 import { fmtMoney, fmtNumber } from "@/lib/admin/format";
+import { collectionNames } from "@/lib/admin/types";
 import { productPerformance } from "@/lib/admin/metrics";
 import { getCatalogue } from "@/lib/catalogue";
 
 export const metadata: Metadata = { title: "Products" };
-
-const COLLECTIONS = ["THE DROP", "MOVEMENT", "FABRIC", "ARCHIVE"] as const;
 
 export default async function ProductsPage({
   searchParams,
@@ -33,6 +33,10 @@ export default async function ProductsPage({
     productPerformance(),
     getCatalogue(),
   ]);
+
+  const collections = collectionNames(catalogue.map((e) => e.product));
+  // `?c=` is lowercase; the stored name is what the rename form must send.
+  const activeName = collections.find((name) => name === active);
 
   const rows = active
     ? performance.filter((p) => p.collection === active)
@@ -73,7 +77,7 @@ export default async function ProductsPage({
             >
               All
             </Link>
-            {COLLECTIONS.map((collection) => (
+            {collections.map((collection) => (
               <Link
                 key={collection}
                 href={`/admin/products?c=${encodeURIComponent(collection.toLowerCase())}`}
@@ -92,6 +96,12 @@ export default async function ProductsPage({
             Stock on hand {fmtMoney(catalogueValue)} at retail
           </p>
         </div>
+
+        {activeName && (
+          <div className="mb-6">
+            <RenameCollectionForm name={activeName} />
+          </div>
+        )}
 
         <Panel
           title={active || "All pieces"}

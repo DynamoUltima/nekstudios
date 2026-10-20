@@ -4,6 +4,7 @@ import { PageHead } from "@/components/page-head";
 import { ProductCard } from "@/components/product-card";
 import { Reveal } from "@/components/motion";
 import { TickerBar } from "@/components/sections";
+import { collectionNames } from "@/lib/admin/types";
 import { getProducts } from "@/lib/catalogue";
 
 export const metadata: Metadata = {
@@ -11,14 +12,6 @@ export const metadata: Metadata = {
   description:
     "Collection '26 — six heavyweight cotton pieces, printed by hand in small runs.",
 };
-
-const FILTERS = [
-  { label: "All", value: "" },
-  { label: "The Drop", value: "the drop" },
-  { label: "Movement", value: "movement" },
-  { label: "Fabric", value: "fabric" },
-  { label: "Archive", value: "archive" },
-];
 
 export default async function ShopPage({
   searchParams,
@@ -29,6 +22,13 @@ export default async function ShopPage({
   const active = (c ?? "").toLowerCase();
 
   const all = await getProducts();
+  const filters = [
+    { label: "All", value: "" },
+    ...collectionNames(all).map((name) => ({
+      label: name,
+      value: name.toLowerCase(),
+    })),
+  ];
   const products = active
     ? all.filter((p) => p.collection.toLowerCase() === active)
     : all;
@@ -54,7 +54,7 @@ export default async function ShopPage({
         <div className="mx-auto max-w-[110rem] px-5 md:px-10">
           <div className="flex flex-wrap items-center justify-between gap-6 border-b border-line pb-6">
             <nav className="flex flex-wrap gap-2.5">
-              {FILTERS.map((filter) => {
+              {filters.map((filter) => {
                 const isActive = active === filter.value;
                 return (
                   <Link

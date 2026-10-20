@@ -8,11 +8,24 @@
 
 import type { Product } from "@/lib/products";
 
-export const COLLECTIONS: Product["collection"][] = [
-  "THE DROP",
-  "MOVEMENT",
-  "FABRIC",
-  "ARCHIVE",
+/**
+ * Collections aren't stored anywhere of their own — a collection is simply the
+ * name its pieces share, in the order they first appear. Renaming one rewrites
+ * those pieces (see `renameCollection`).
+ */
+export const collectionNames = (products: Pick<Product, "collection">[]): string[] => [
+  ...new Set(products.map((p) => p.collection)),
+];
+
+export type FabricOption = { fabric: string; weightGsm: number };
+
+/** Each distinct fabric already in the catalogue, with the weight it was last cut at. */
+export const fabricOptions = (
+  products: Pick<Product, "fabric" | "weightGsm">[],
+): FabricOption[] => [
+  ...new Map(
+    products.map((p) => [p.fabric, { fabric: p.fabric, weightGsm: p.weightGsm }]),
+  ).values(),
 ];
 
 export const BADGES: NonNullable<Product["status"]>[] = [

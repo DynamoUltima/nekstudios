@@ -3,11 +3,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AdminPageHead } from "@/components/admin/admin-shell";
+import { DeleteProduct } from "@/components/admin/delete-product";
 import { ProductForm } from "@/components/admin/product-form";
 import { Meter, Panel } from "@/components/admin/ui";
 import { fmtMoney, fmtNumber, fmtPercent } from "@/lib/admin/format";
+import { collectionNames } from "@/lib/admin/types";
 import { productPerformance, sizeDemand } from "@/lib/admin/metrics";
-import { getEntry } from "@/lib/catalogue";
+import { getCatalogue, getEntry } from "@/lib/catalogue";
 
 type Params = { params: Promise<{ slug: string }> };
 
@@ -144,7 +146,13 @@ export default async function ProductEditorPage({ params }: Params) {
           </div>
         )}
 
-        <ProductForm product={product} stock={stock} />
+        <ProductForm
+          product={product}
+          stock={stock}
+          collections={collectionNames((await getCatalogue()).map((e) => e.product))}
+        />
+
+        <DeleteProduct slug={product.slug} name={product.name} />
       </div>
     </>
   );

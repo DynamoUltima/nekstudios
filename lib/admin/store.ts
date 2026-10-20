@@ -124,7 +124,7 @@ export const getDrops = cache(async (): Promise<Drop[]> => {
 export type ProductPatch = {
   price?: number;
   status?: Product["status"] | null;
-  collection?: Product["collection"];
+  collection?: string;
   colorway?: string;
   description?: string;
   /** Primary shot. Already uploaded — this is the URL to point at. */
@@ -173,6 +173,29 @@ export async function patchProduct(slug: string, patch: ProductPatch) {
 
   await adminDb.collection(PRODUCTS_COLLECTION).doc(slug).update(update);
   return { ...entry.product, ...update } as Product;
+}
+
+/**
+ * Moves every piece in `from` to `to`. Returns how many were rewritten.
+ * Renaming onto an existing collection merges the two.
+ */
+export async function renameCollection(from: string, to: string) {
+  const snapshot = await adminDb
+    .collection(PRODUCTS_COLLECTION)
+    .where("collection", "==", from)
+    .get();
+
+  // A write batch holds 500 operations; a catalogue never gets near that, but
+  // chunking costs nothing and keeps this from failing quietly later.
+  for (let i = 0; i < snapshot.docs.length; i += 400) {
+    const batch = adminDb.batch();
+    for (const doc of snapshot.docs.slice(i, i + 400)) {
+      batch.update(doc.ref, { collection: to, updatedAt: Timestamp.now() });
+    }
+    await batch.commit();
+  }
+
+  return snapshot.size;
 }
 
 /**
@@ -231,4 +254,17 @@ export async function createProduct(input: NewProduct): Promise<Product | null> 
     status: input.status ?? undefined,
     soldOutSizes,
   } as Product;
+}
+
+/**
+ * Removes a piece. Returns the product as it was, so the caller can sweep its
+ * photography out of the bucket, or null when there was nothing to delete.
+ * Orders keep their own copy of the name and price, so past sales still read.
+ */
+export async function deleteProduct(slug: string): Promise<Product | null> {
+  const entry = await getEntry(slug);
+  if (!entry) return null;
+
+  await adminDb.collection(PRODUCTS_COLLECTION).doc(slug).delete();
+  return entry.product;
 }

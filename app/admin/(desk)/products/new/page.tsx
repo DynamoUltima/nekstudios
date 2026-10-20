@@ -2,10 +2,16 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { AdminPageHead } from "@/components/admin/admin-shell";
 import { NewProductForm } from "@/components/admin/new-product-form";
+import { collectionNames, fabricOptions } from "@/lib/admin/types";
+import { getCatalogue } from "@/lib/catalogue";
 
 export const metadata: Metadata = { title: "New piece" };
 
-export default function NewProductPage() {
+export default async function NewProductPage() {
+  const products = (await getCatalogue()).map((e) => e.product);
+  const collections = collectionNames(products);
+  const fabrics = fabricOptions(products);
+
   return (
     <>
       <AdminPageHead
@@ -27,7 +33,7 @@ export default function NewProductPage() {
       />
 
       <div className="px-5 py-8 md:px-9">
-        <NewProductForm />
+        <NewProductForm collections={collections} fabrics={fabrics} />
       </div>
     </>
   );

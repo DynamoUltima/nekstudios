@@ -6,17 +6,20 @@ import {
   emptyProductFormState,
   type ProductFormState,
 } from "@/lib/admin/form-state";
-import { BADGES, COLLECTIONS, type StockCell } from "@/lib/admin/types";
+import { BADGES, type StockCell } from "@/lib/admin/types";
 import type { Product } from "@/lib/products";
 import { AdminButton, Field, Panel, inputClass } from "./ui";
 import { ImageField } from "./image-field";
+import { submitWithoutReset } from "./submit";
 
 export function ProductForm({
   product,
   stock,
+  collections,
 }: {
   product: Product;
   stock: StockCell[];
+  collections: string[];
 }) {
   // The permalink is what makes this form work before hydration: React emits
   // the action's hidden fields, and a no-JS submit lands back on this page.
@@ -27,7 +30,11 @@ export function ProductForm({
   );
 
   return (
-    <form action={formAction} className="grid gap-6 xl:grid-cols-[1.3fr_1fr]">
+    <form
+      action={formAction}
+      onSubmit={(event) => submitWithoutReset(event, formAction)}
+      className="grid gap-6 xl:grid-cols-[1.3fr_1fr]"
+    >
       <input type="hidden" name="slug" value={product.slug} />
 
       <div className="space-y-6">
@@ -74,7 +81,7 @@ export function ProductForm({
                 defaultValue={product.collection}
                 className={inputClass}
               >
-                {COLLECTIONS.map((collection) => (
+                {collections.map((collection) => (
                   <option key={collection} value={collection}>
                     {collection}
                   </option>

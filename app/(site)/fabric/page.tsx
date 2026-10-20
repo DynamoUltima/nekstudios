@@ -3,21 +3,13 @@ import { PageHead } from "@/components/page-head";
 import { FabricSection, Newsletter } from "@/components/sections";
 import { Reveal } from "@/components/motion";
 import { Eyebrow } from "@/components/button";
+import { getFabricContent } from "@/lib/fabric";
 
 export const metadata: Metadata = {
   title: "The Fabric",
   description:
     "Spec sheet, sizing, shipping and returns for Eikone heavyweight cotton.",
 };
-
-const SIZING = [
-  { size: "XS", chest: 19.7, length: 26.8, sleeve: 7.9 },
-  { size: "S", chest: 20.9, length: 27.6, sleeve: 8.3 },
-  { size: "M", chest: 22, length: 28.3, sleeve: 8.7 },
-  { size: "L", chest: 23.2, length: 29.1, sleeve: 9.1 },
-  { size: "XL", chest: 24.4, length: 29.9, sleeve: 9.4 },
-  { size: "XXL", chest: 25.6, length: 30.7, sleeve: 9.8 },
-];
 
 const POLICIES = [
   {
@@ -37,7 +29,9 @@ const POLICIES = [
   },
 ];
 
-export default function FabricPage() {
+export default async function FabricPage() {
+  const { sizing } = await getFabricContent();
+
   return (
     <>
       <PageHead
@@ -95,7 +89,7 @@ export default function FabricPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-line">
-                  {SIZING.map((row) => (
+                  {sizing.map((row) => (
                     <tr
                       key={row.size}
                       className="transition-colors duration-300 hover:bg-bone-2"

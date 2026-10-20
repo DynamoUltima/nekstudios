@@ -4,16 +4,17 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useCart } from "@/lib/cart";
+import { collectionLink } from "@/lib/collection-links";
 
-const NAV = [
-  { label: "Movement", href: "/shop?c=movement" },
-  { label: "Fabric", href: "/fabric" },
-  { label: "The Drop", href: "/shop" },
+const PAGES = [
   { label: "Lookbook", href: "/lookbook" },
   { label: "Cities", href: "/#cities" },
 ];
 
-export function SiteHeader() {
+export function SiteHeader({ collections }: { collections: string[] }) {
+  // Collections are renamed from the admin, so the nav follows the catalogue.
+  const NAV = [...collections.map(collectionLink), ...PAGES];
+
   const [scrolled, setScrolled] = useState(false);
   const [menu, setMenu] = useState(false);
   const { count, setOpen, ready } = useCart();

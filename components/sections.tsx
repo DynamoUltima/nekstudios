@@ -11,6 +11,7 @@ import {
   TornSeam,
 } from "./texture";
 import { getProducts } from "@/lib/catalogue";
+import { getFabricContent } from "@/lib/fabric";
 import { NewsletterForm } from "./newsletter-form";
 
 /* ------------------------------- ticker bar ------------------------------- */
@@ -98,25 +99,9 @@ export async function DropGrid() {
 
 /* --------------------------------- fabric --------------------------------- */
 
-const FABRIC_POINTS = [
-  {
-    n: "01",
-    title: "Waffle structure",
-    body: "An open weave that traps air instead of heat. The shirt moves air across the body so it keeps working past the first mile.",
-  },
-  {
-    n: "02",
-    title: "260 GSM, garment dyed",
-    body: "Heavy enough to hold a boxed shoulder without a single stiffener. Dyed after cutting so the colour sits deep and fades honestly.",
-  },
-  {
-    n: "03",
-    title: "Three-pass hand print",
-    body: "Pulled by hand, three passes, cured between each. The ink sits on the fabric rather than soaking into it — so it cracks the way it should.",
-  },
-];
+export async function FabricSection() {
+  const { gsm, points } = await getFabricContent();
 
-export function FabricSection() {
   return (
     <section id="fabric" className="relative bg-ink py-24 text-bone md:py-32">
       <TornSeam className="absolute -top-px left-0 h-6 w-full rotate-180" />
@@ -145,7 +130,7 @@ export function FabricSection() {
 
           <Reveal delay={200} className="absolute top-6 -right-4 md:-right-10">
             <div className="rotate-[3deg] bg-bone px-5 py-4 text-ink">
-              <p className="display text-4xl">260</p>
+              <p className="display text-4xl">{gsm}</p>
               <p className="label mt-1.5 text-ash">GSM</p>
             </div>
           </Reveal>
@@ -173,11 +158,11 @@ export function FabricSection() {
           </Reveal>
 
           <div className="mt-14 divide-y divide-white/12 border-t border-white/12">
-            {FABRIC_POINTS.map((point, i) => (
-              <Reveal key={point.n} delay={i * 100}>
+            {points.map((point, i) => (
+              <Reveal key={`${point.title}-${i}`} delay={i * 100}>
                 <div className="group flex gap-6 py-7 md:gap-10">
                   <span className="label pt-1 text-bone/35 transition-colors duration-300 group-hover:text-red">
-                    {point.n}
+                    {String(i + 1).padStart(2, "0")}
                   </span>
                   <div>
                     <h3 className="label text-bone">{point.title}</h3>
