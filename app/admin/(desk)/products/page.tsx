@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { AdminPageHead } from "@/components/admin/admin-shell";
+import { FlashToast } from "@/components/admin/toast";
 import { RenameCollectionForm } from "@/components/admin/rename-collection-form";
 import {
   EmptyState,
@@ -24,9 +25,9 @@ export const metadata: Metadata = { title: "Products" };
 export default async function ProductsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ c?: string }>;
+  searchParams: Promise<{ c?: string; deleted?: string }>;
 }) {
-  const { c } = await searchParams;
+  const { c, deleted } = await searchParams;
   const active = (c ?? "").toUpperCase();
 
   const [performance, catalogue] = await Promise.all([
@@ -50,6 +51,9 @@ export default async function ProductsPage({
 
   return (
     <>
+      {deleted && (
+        <FlashToast message={`${deleted} deleted.`} param="deleted" />
+      )}
       <AdminPageHead
         eyebrow="Catalogue"
         title="Pieces"

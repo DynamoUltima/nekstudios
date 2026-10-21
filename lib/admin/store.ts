@@ -122,6 +122,7 @@ export const getDrops = cache(async (): Promise<Drop[]> => {
 /* -------------------------------- products -------------------------------- */
 
 export type ProductPatch = {
+  name?: string;
   price?: number;
   status?: Product["status"] | null;
   collection?: string;
@@ -142,6 +143,7 @@ export async function patchProduct(slug: string, patch: ProductPatch) {
   if (!entry) return null;
 
   const update: Record<string, unknown> = stripUndefined({
+    name: patch.name,
     price: patch.price,
     collection: patch.collection,
     colorway: patch.colorway,

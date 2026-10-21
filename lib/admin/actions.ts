@@ -173,6 +173,10 @@ export async function updateProduct(
 
   const listing = readListing(formData, errors, await currentCollections());
 
+  // Absent means a form from before the field existed: leave the name alone.
+  const name = formData.has("name") ? text(formData, "name") : undefined;
+  if (name === "") errors.name = "Every piece needs a name.";
+
   const front = readImage(formData, "image", errors);
   const back = readImage(formData, "imageAlt", errors);
 
@@ -211,6 +215,7 @@ export async function updateProduct(
 
   const patch: ProductPatch = {
     ...listing,
+    name,
     stock,
     image: frontUrl,
     alt: alt || undefined,
@@ -375,7 +380,7 @@ export async function createProduct(
 
   // Straight to the editor: the piece is live, and stock is the next thing
   // anyone wants to look at.
-  redirect(`/admin/products/${slug}`);
+  redirect(`/admin/products/${slug}?created=1`);
 }
 
 export async function deleteProduct(
@@ -398,7 +403,7 @@ export async function deleteProduct(
   ]);
 
   revalidateProduct(slug);
-  redirect("/admin/products");
+  redirect(`/admin/products?deleted=${encodeURIComponent(product.name)}`);
 }
 
 /** Everywhere a piece is read. The home page carries the featured grid. */

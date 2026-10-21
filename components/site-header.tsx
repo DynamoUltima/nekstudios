@@ -1,23 +1,62 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useCart } from "@/lib/cart";
 import { collectionLink } from "@/lib/collection-links";
 
 const PAGES = [
+  { label: "Shop", href: "/shop" },
   { label: "Lookbook", href: "/lookbook" },
   { label: "Cities", href: "/#cities" },
 ];
 
+/** Whether a nav link points at the page being viewed. Hash links never match. */
+function isCurrent(href: string, pathname: string, collection: string | null) {
+  const url = new URL(href, "http://x");
+  if (url.hash) return false;
+
+  const target = url.searchParams.get("c");
+  if (target) return pathname === "/shop" && collection === target;
+
+  // "Shop" covers the product pages too, but not a filtered collection view.
+  if (url.pathname === "/shop") {
+    return pathname.startsWith("/shop") && !collection;
+  }
+  return pathname.startsWith(url.pathname);
+}
+
+/**
+ * Reading the query string needs a Suspense boundary, so the header is split:
+ * this wrapper reads it, and the view below renders without it as the fallback.
+ * That keeps the nav in the server-rendered HTML.
+ */
 export function SiteHeader({ collections }: { collections: string[] }) {
+  return <HeaderView collections={collections} collection={useSearchParams().get("c")} />;
+}
+
+export function SiteHeaderFallback({ collections }: { collections: string[] }) {
+  return <HeaderView collections={collections} collection={null} />;
+}
+
+function HeaderView({
+  collections,
+  collection,
+}: {
+  collections: string[];
+  collection: string | null;
+}) {
   // Collections are renamed from the admin, so the nav follows the catalogue.
-  const NAV = [...collections.map(collectionLink), ...PAGES];
+  const [shop, ...rest] = PAGES;
+  const NAV = [shop, ...collections.map(collectionLink), ...rest];
 
   const [scrolled, setScrolled] = useState(false);
   const [menu, setMenu] = useState(false);
-  const { count, setOpen, ready } = useCart();
+  const { count: stored, setOpen, ready } = useCart();
+  // The bag lives in localStorage, so the server can't know it. Show zero until
+  // the client has read it, or the first render won't match the HTML.
+  const count = ready ? stored : 0;
   const pathname = usePathname();
 
   useEffect(() => {
@@ -48,16 +87,26 @@ export function SiteHeader({ collections }: { collections: string[] }) {
           </Link>
 
           <nav className="hidden items-center gap-9 lg:flex">
-            {NAV.map((item) => (
-              <Link
-                key={item.label}
-                href={item.href}
-                className="label group relative text-ink/75 transition-colors duration-300 hover:text-ink"
-              >
-                {item.label}
-                <span className="absolute -bottom-1.5 left-0 h-px w-0 bg-red transition-[width] duration-300 group-hover:w-full" />
-              </Link>
-            ))}
+            {NAV.map((item) => {
+              const current = isCurrent(item.href, pathname, collection);
+              return (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  aria-current={current ? "page" : undefined}
+                  className={`label group relative transition-colors duration-300 hover:text-ink ${
+                    current ? "text-ink" : "text-ink/75"
+                  }`}
+                >
+                  {item.label}
+                  <span
+                    className={`absolute -bottom-1.5 left-0 h-px bg-red transition-[width] duration-300 group-hover:w-full ${
+                      current ? "w-full" : "w-0"
+                    }`}
+                  />
+                </Link>
+              );
+            })}
           </nav>
 
           <div className="flex items-center gap-3 md:gap-5">
@@ -68,7 +117,7 @@ export function SiteHeader({ collections }: { collections: string[] }) {
             >
               Bag
               <span className="ml-1.5 text-red">
-                [{ready ? count : 0}]
+                [{count}]
               </span>
             </button>
 
@@ -113,7 +162,10 @@ export function SiteHeader({ collections }: { collections: string[] }) {
             <Link
               key={item.label}
               href={item.href}
-              className="display border-b border-line py-4 text-5xl transition-colors hover:text-red sm:text-6xl"
+              aria-current={isCurrent(item.href, pathname, collection) ? "page" : undefined}
+              className={`display border-b border-line py-4 text-5xl transition-colors hover:text-red sm:text-6xl ${
+                isCurrent(item.href, pathname, collection) ? "text-red" : ""
+              }`}
               style={{
                 transitionDelay: menu ? `${i * 55 + 120}ms` : "0ms",
                 opacity: menu ? 1 : 0,

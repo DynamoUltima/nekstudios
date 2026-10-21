@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import { FlashToast } from "@/components/admin/toast";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AdminPageHead } from "@/components/admin/admin-shell";
@@ -11,7 +12,10 @@ import { collectionNames } from "@/lib/admin/types";
 import { productPerformance, sizeDemand } from "@/lib/admin/metrics";
 import { getCatalogue, getEntry } from "@/lib/catalogue";
 
-type Params = { params: Promise<{ slug: string }> };
+type Params = {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ created?: string }>;
+};
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params;
@@ -19,8 +23,9 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   return { title: entry ? entry.product.name : "Piece not found" };
 }
 
-export default async function ProductEditorPage({ params }: Params) {
+export default async function ProductEditorPage({ params, searchParams }: Params) {
   const { slug } = await params;
+  const { created } = await searchParams;
   const entry = await getEntry(slug);
 
   if (!entry) notFound();
@@ -38,6 +43,9 @@ export default async function ProductEditorPage({ params }: Params) {
 
   return (
     <>
+      {created && (
+        <FlashToast message={`${product.name} created.`} param="created" />
+      )}
       <AdminPageHead
         eyebrow={
           <>

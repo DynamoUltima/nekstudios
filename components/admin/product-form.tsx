@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { updateProduct } from "@/lib/admin/actions";
 import {
   emptyProductFormState,
@@ -11,6 +11,7 @@ import type { Product } from "@/lib/products";
 import { AdminButton, Field, Panel, inputClass } from "./ui";
 import { ImageField } from "./image-field";
 import { submitWithoutReset } from "./submit";
+import { Toast } from "./toast";
 
 export function ProductForm({
   product,
@@ -29,6 +30,9 @@ export function ProductForm({
     `/admin/products/${product.slug}`,
   );
 
+  // Each save returns a fresh state object, so dismissing one never hides the next.
+  const [dismissed, setDismissed] = useState<ProductFormState | null>(null);
+
   return (
     <form
       action={formAction}
@@ -37,9 +41,29 @@ export function ProductForm({
     >
       <input type="hidden" name="slug" value={product.slug} />
 
+      {state.ok && state !== dismissed && (
+        <Toast message={state.message} onDismiss={() => setDismissed(state)} />
+      )}
+
       <div className="space-y-6">
         <Panel title="Listing">
           <div className="grid gap-6 sm:grid-cols-2">
+            <div className="sm:col-span-2">
+              <Field
+                label="Name"
+                htmlFor="name"
+                error={state.errors.name}
+                hint="Shown as the title. The permalink stays the same."
+              >
+                <input
+                  id="name"
+                  name="name"
+                  defaultValue={product.name}
+                  className={inputClass}
+                />
+              </Field>
+            </div>
+
             <Field
               label="Price (₵)"
               htmlFor="price"

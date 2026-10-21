@@ -1,10 +1,11 @@
 import { collectionNames } from "@/lib/admin/types";
 import { CartProvider } from "@/lib/cart";
 import { getProducts } from "@/lib/catalogue";
+import { Suspense } from "react";
 import { Analytics } from "./analytics";
 import { CartDrawer } from "./cart-drawer";
 import { SiteFooter } from "./site-footer";
-import { SiteHeader } from "./site-header";
+import { SiteHeader, SiteHeaderFallback } from "./site-header";
 
 /**
  * Storefront chrome. Lives in a component rather than the root layout because
@@ -15,7 +16,10 @@ export async function SiteChrome({ children }: { children: React.ReactNode }) {
 
   return (
     <CartProvider>
-      <SiteHeader collections={collections} />
+      {/* The header reads the query string, which needs a Suspense boundary. */}
+      <Suspense fallback={<SiteHeaderFallback collections={collections} />}>
+        <SiteHeader collections={collections} />
+      </Suspense>
       <main>{children}</main>
       <SiteFooter collections={collections} />
       <CartDrawer />

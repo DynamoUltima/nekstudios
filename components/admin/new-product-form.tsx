@@ -26,6 +26,15 @@ const DEFAULT_RUN: Record<(typeof SIZE_LADDER)[number], number> = {
   XXL: 10,
 };
 
+/** Starting copy, editable. Edit before saving — it goes live as written. */
+const DEFAULT_DESCRIPTION =
+  "A boxed-out silhouette cut from heavyweight cotton that holds its shape. Screen-printed by hand so the ink sits on the fabric, not in it.";
+const DEFAULT_DETAILS = [
+  "Boxed silhouette, drops at the shoulder",
+  "Hand screen-printed in three passes",
+  "Pre-shrunk — take your usual size",
+].join("\n");
+
 export function NewProductForm({
   collections,
   fabrics,
@@ -171,6 +180,7 @@ export function NewProductForm({
                 id="description"
                 name="description"
                 rows={5}
+                defaultValue={DEFAULT_DESCRIPTION}
                 className={`${inputClass} resize-y leading-relaxed`}
               />
             </Field>
@@ -185,7 +195,7 @@ export function NewProductForm({
                 id="details"
                 name="details"
                 rows={4}
-                placeholder={"Boxed silhouette, drops at the shoulder\nHand screen-printed in three passes\nPre-shrunk — take your usual size"}
+                defaultValue={DEFAULT_DETAILS}
                 className={`${inputClass} resize-y leading-relaxed`}
               />
             </Field>
