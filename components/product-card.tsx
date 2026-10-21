@@ -30,7 +30,7 @@ export function ProductCard({
             alt={product.alt ?? product.name}
             fill
             sizes="(max-width: 640px) 88vw, (max-width: 1024px) 44vw, 30vw"
-            className="object-cover grayscale transition-all duration-700 ease-out group-hover:scale-[1.04] group-hover:opacity-0"
+            className="object-cover transition-all duration-700 ease-out group-hover:scale-[1.04] group-hover:opacity-0"
           />
           <Image
             src={product.imageAlt}

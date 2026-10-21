@@ -105,7 +105,7 @@ export function CartDrawer() {
                       alt={line.name}
                       fill
                       sizes="88px"
-                      className="object-cover grayscale"
+                      className="object-cover"
                     />
                   </Link>
 

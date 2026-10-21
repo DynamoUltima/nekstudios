@@ -3,7 +3,6 @@ import {
   Cities,
   DropGrid,
   FabricSection,
-  Lookbook,
   Newsletter,
   TickerBar,
 } from "@/components/sections";
@@ -15,7 +14,6 @@ export default function HomePage() {
       <TickerBar />
       <DropGrid />
       <FabricSection />
-      <Lookbook />
       <Cities />
       <Newsletter />
     </>

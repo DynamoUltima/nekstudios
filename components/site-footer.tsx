@@ -9,7 +9,6 @@ const columns = (collections: string[]) => [
     links: [
       { label: "All pieces", href: "/shop" },
       ...collections.map(collectionLink),
-      { label: "Lookbook", href: "/lookbook" },
     ],
   },
   {

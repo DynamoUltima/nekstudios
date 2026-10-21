@@ -81,7 +81,7 @@ export function Hero() {
                     alt="Heavyweight tee hung against a raw concrete wall"
                     fill
                     sizes="(max-width: 1024px) 45vw, 22vw"
-                    className="object-cover contrast-125 grayscale"
+                    className="object-cover contrast-125"
                     priority
                   />
                 </div>
@@ -102,7 +102,7 @@ export function Hero() {
                     alt="Model wearing a heavyweight tee against a concrete wall"
                     fill
                     sizes="(max-width: 1024px) 62vw, 32vw"
-                    className="object-cover object-top contrast-110 grayscale"
+                    className="object-cover object-top contrast-110"
                     priority
                   />
                 </div>

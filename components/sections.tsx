@@ -116,7 +116,7 @@ export async function FabricSection() {
                   alt="Close crop of heavyweight waffle-structure cotton"
                   fill
                   sizes="(max-width: 1024px) 92vw, 42vw"
-                  className="object-cover grayscale"
+                  className="object-cover"
                 />
               </div>
             </Reveal>
@@ -274,7 +274,7 @@ export function Lookbook() {
                     alt={look.alt}
                     fill
                     sizes="(max-width: 768px) 50vw, 25vw"
-                    className="object-cover grayscale transition-all duration-700 group-hover:scale-105 group-hover:grayscale-0"
+                    className="object-cover transition-all duration-700 group-hover:scale-105"
                   />
                   <figcaption className="label absolute bottom-3 left-3 bg-bone/90 px-2.5 py-1.5 text-[0.5625rem] text-ink">
                     {look.label}

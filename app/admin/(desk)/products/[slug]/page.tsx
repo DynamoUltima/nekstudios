@@ -124,7 +124,7 @@ export default async function ProductEditorPage({ params, searchParams }: Params
                     alt={product.alt}
                     fill
                     sizes="(max-width: 1280px) 45vw, 20vw"
-                    className="object-cover grayscale"
+                    className="object-cover"
                   />
                 </div>
                 <div className="relative aspect-4/5 bg-bone-2">

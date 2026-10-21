@@ -74,7 +74,7 @@ export default async function ProductPage({
                     fill
                     priority
                     sizes="(max-width: 1024px) 92vw, 50vw"
-                    className="object-cover grayscale"
+                    className="object-cover"
                   />
                 </div>
               </div>
@@ -89,7 +89,7 @@ export default async function ProductPage({
                       alt={`${product.name} detail shot`}
                       fill
                       sizes="(max-width: 1024px) 45vw, 25vw"
-                      className="object-cover grayscale"
+                      className="object-cover"
                     />
                   </div>
                 </div>

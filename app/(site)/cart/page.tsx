@@ -63,7 +63,7 @@ export default function CartPage() {
                           alt={line.name}
                           fill
                           sizes="144px"
-                          className="object-cover grayscale transition-transform duration-500 hover:scale-105"
+                          className="object-cover transition-transform duration-500 hover:scale-105"
                         />
                       </Link>
 

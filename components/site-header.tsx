@@ -8,7 +8,6 @@ import { collectionLink } from "@/lib/collection-links";
 
 const PAGES = [
   { label: "Shop", href: "/shop" },
-  { label: "Lookbook", href: "/lookbook" },
   { label: "Cities", href: "/#cities" },
 ];
 
@@ -122,7 +121,7 @@ function HeaderView({
             </button>
 
             <Link
-              href="/shop"
+              href="/#newsletter"
               className="label hidden bg-ink px-6 py-3.5 text-bone transition-colors duration-300 hover:bg-red md:inline-flex"
             >
               Get Early Access

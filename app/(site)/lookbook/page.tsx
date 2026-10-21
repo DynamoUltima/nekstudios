@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import Image from "next/image";
 import { PageHead } from "@/components/page-head";
 import { Parallax, Reveal } from "@/components/motion";
@@ -46,6 +47,11 @@ const SPREADS = [
 ];
 
 export default function LookbookPage() {
+  // Hidden for now. Delete this line to bring the page back, then restore the
+  // Lookbook links in site-header.tsx and site-footer.tsx and <Lookbook /> on
+  // the home page.
+  notFound();
+
   return (
     <>
       <PageHead
@@ -90,7 +96,7 @@ export default function LookbookPage() {
                             alt={spread.mainAlt}
                             fill
                             sizes="(max-width: 1024px) 92vw, 60vw"
-                            className="object-cover grayscale transition-all duration-1000 hover:grayscale-0"
+                            className="object-cover transition-all duration-1000"
                           />
                         </div>
                       </div>
@@ -131,7 +137,7 @@ export default function LookbookPage() {
                             alt={spread.insetAlt}
                             fill
                             sizes="(max-width: 1024px) 50vw, 25vw"
-                            className="object-cover grayscale"
+                            className="object-cover"
                           />
                         </div>
                       </div>

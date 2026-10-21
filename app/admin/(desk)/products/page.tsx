@@ -161,7 +161,7 @@ export default async function ProductsPage({
                                 alt=""
                                 fill
                                 sizes="44px"
-                                className="object-cover grayscale"
+                                className="object-cover"
                               />
                             </div>
                           )}
